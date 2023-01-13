@@ -53,7 +53,7 @@ char mep_key[21] = "";
 const char* deviceId = "ESP32-MEP-Dabbler"; // CAN BE REMOVED
 bool mqtt_enable = false;
 char mqtt_topic[25];
-char mqtt_server[15];
+char mqtt_server[16];
 char mqtt_user[33];
 char mqtt_password[65];
 int mqtt_connection_state;
@@ -412,8 +412,15 @@ void MqttSetup() {
 }
 
 void MqttConnect() {
+  static unsigned long LastConnect = 0;
   if (!mqttclient.connected()) {
     bool mqttConnectResult=false;
+
+    if (millis()-LastConnect<30000)
+      return;
+
+    LastConnect=millis();
+
     Serial.print("Reconnecting to MQTT broker... ");
     Serial.printf("mqtt_user: '%s'\r\n",mqtt_user);
     String localMqttUser = String(mqtt_user);
